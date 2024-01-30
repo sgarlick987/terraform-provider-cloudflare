@@ -207,10 +207,11 @@ func expandLoadBalancerOrigins(originSet *schema.Set) (origins []cloudflare.Load
 	for _, iface := range originSet.List() {
 		o := iface.(map[string]interface{})
 		origin := cloudflare.LoadBalancerOrigin{
-			Name:    o["name"].(string),
-			Address: o["address"].(string),
-			Enabled: o["enabled"].(bool),
-			Weight:  o["weight"].(float64),
+			Name:             o["name"].(string),
+			Address:          o["address"].(string),
+			Enabled:          o["enabled"].(bool),
+			Weight:           o["weight"].(float64),
+			VirtualNetworkID: o["virtual_network_id"].(string),
 		}
 
 		if header, ok := o["header"]; ok {
@@ -303,11 +304,12 @@ func flattenLoadBalancerOrigins(d *schema.ResourceData, origins []cloudflare.Loa
 	flattened := make([]interface{}, 0)
 	for _, o := range origins {
 		cfg := map[string]interface{}{
-			"name":    o.Name,
-			"address": o.Address,
-			"enabled": o.Enabled,
-			"weight":  o.Weight,
-			"header":  flattenLoadBalancerPoolHeader(o.Header),
+			"name":               o.Name,
+			"address":            o.Address,
+			"enabled":            o.Enabled,
+			"weight":             o.Weight,
+			"virtual_network_id": o.VirtualNetworkID,
+			"header":             flattenLoadBalancerPoolHeader(o.Header),
 		}
 
 		flattened = append(flattened, cfg)
